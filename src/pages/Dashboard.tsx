@@ -1,17 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  Filter, 
-} from 'lucide-react';
-
 import { Button } from "@/components/ui/button";
-import { 
-  Sheet, 
-  SheetContent, 
-} from "@/components/ui/sheet";
-import Sidebar from '@/components/Sidebar';
 import ArticleCard from '@/components/ArticleCard';
 
-// Article Interface
+
 export interface Article {
   id: string;
   title: string;
@@ -27,7 +18,6 @@ export interface Article {
   dislikes: number;
 }
 
-// Sample Categories
 const CATEGORIES = [
   'Technology', 
   'Science', 
@@ -86,7 +76,6 @@ const SAMPLE_ARTICLES: Article[] = [
 
 const Dashboard: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const filteredArticles = selectedCategory 
     ? SAMPLE_ARTICLES.filter(article => article.category === selectedCategory)
@@ -95,22 +84,23 @@ const Dashboard: React.FC = () => {
   
     return (
       <div className="flex min-h-screen bg-gray-100">
-        {/* Desktop Sidebar */}
+{/*         
         <div className="hidden md:block sticky top-0 h-screen ">
             <Sidebar />
-        </div>
+        </div> */}
   
         {/* Mobile Sidebar */}
-        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+        {/* <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <SheetContent side="left" className="w-64 bg-gray-900">
             <Sidebar />
           </SheetContent>
-        </Sheet>
+        </Sheet> */}
   
-        <div className="flex-1 bg-gray-50 p-6 md:p-10">
+        <div className="flex-1 bg-gray-50 p-6 md:">
           <div className="max-w-4xl mx-auto">
             {/* Mobile Sidebar Toggle */}
-            <div className="md:hidden mb-6">
+              <div className="flex flex-wrap gap-2 mb-6">
+            {/* <div className="md:hidden mb-6">
               <Button 
                 variant="outline" 
                 onClick={() => setIsSidebarOpen(true)}
@@ -118,10 +108,9 @@ const Dashboard: React.FC = () => {
               >
                 <Filter /> <span>Menu</span>
               </Button>
-            </div>
+            </div> */}
   
             {/* Category Filters */}
-            <div className="flex flex-wrap gap-2 mb-6">
               <Button 
                 variant={selectedCategory === null ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(null)}
