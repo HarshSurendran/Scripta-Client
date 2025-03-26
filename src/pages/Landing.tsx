@@ -1,11 +1,18 @@
 import React from 'react'
 import Header from '../components/Header'
+import HeroSection from '@/components/HeroSection'
 
 const Landing: React.FC = () => {
   return (
       <div>
-          <Header></Header>
-      Welcome to Scripta!!!
+        <header>
+        <Header></Header>
+      </header>
+      <main>
+        <HeroSection />
+        
+
+      </main>
     </div>
   )
 }
