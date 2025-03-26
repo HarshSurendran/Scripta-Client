@@ -9,28 +9,12 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { SignupErrors, SignupFormData } from '@/types/authTypes';
+import { signup } from '@/services/auth';
+import { useDispatch } from 'react-redux';
+import { login } from '@/redux/slice/userSlice';
 
-
-interface SignupFormData {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  email: string;
-  dob: Date | undefined;
-  password: string;
-  confirmPassword: string;
-}
-
-interface SignupErrors {
-    firstName: string;
-    lastName: string;
-    phone: string;
-    email: string;
-    dob: string;
-    password: string;
-    confirmPassword: string;
-}
 
 
 
@@ -44,9 +28,11 @@ const Signup: React.FC = () => {
     password: '',
     confirmPassword: ''
   });
-
   const [errors, setErrors] = useState<Partial<SignupErrors>>({});
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -83,11 +69,19 @@ const Signup: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      // Proceed with signup logic
-      console.log("Form is valid", formData);
+    try {      
+      if (validateForm()) {
+        const response = await signup(formData);
+        if (response.success) {
+          dispatch(login(response.data.user))
+          navigate('/dashboard');
+        }
+        console.log("Form is valid", formData);
+      }
+    } catch (error) {
+      
     }
   };
 
