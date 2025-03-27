@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import ArticleCard from '@/components/ArticleCard';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store/store';
+import CategorySelectionModal from '@/components/CategorySelection';
 
 
 export interface Article {
@@ -76,14 +79,20 @@ const SAMPLE_ARTICLES: Article[] = [
 
 const Dashboard: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const user = useSelector((state: RootState) => state.user);
 
   const filteredArticles = selectedCategory 
     ? SAMPLE_ARTICLES.filter(article => article.category === selectedCategory)
     : SAMPLE_ARTICLES;
   
   
-    return (
-      <div className="flex min-h-screen bg-gray-100">
+  return (
+    
+      <>
+      {user.interestedCategories.length == 0 && (
+        <CategorySelectionModal />
+      )}
+    <div className="flex min-h-screen bg-gray-100">
 {/*         
         <div className="hidden md:block sticky top-0 h-screen ">
             <Sidebar />
@@ -135,6 +144,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      </>
     );
   };
 
