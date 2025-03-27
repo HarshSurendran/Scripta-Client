@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { login } from '@/services/auth';
+import { login as loginAction } from '@/redux/slice/userSlice';
+import { useDispatch } from 'react-redux';
 
 interface LoginFormData {
   identifier: string; // can be email or phone
@@ -12,12 +15,13 @@ interface LoginFormData {
 }
 
 const Login: React.FC = () => {
-    const [formData, setFormData] = useState<LoginFormData>({
-      identifier: '',
-      password: ''
-    });
-  
-    const [errors, setErrors] = useState<Partial<LoginFormData>>({});
+  const [formData, setFormData] = useState<LoginFormData>({
+    identifier: '',
+    password: ''
+  });  
+  const [errors, setErrors] = useState<Partial<LoginFormData>>({});
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
@@ -48,11 +52,20 @@ const Login: React.FC = () => {
       return Object.keys(newErrors).length === 0;
     };
   
-    const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      if (validateForm()) {
-        // Proceed with login logic
-        console.log("Login form is valid", formData);
+  const handleSubmit = async (e: React.FormEvent) => {      
+    try {
+        console.log("Form data", formData);
+        e.preventDefault();
+        if (validateForm()) {
+          const response = await login(formData.identifier, formData.password);
+          if (response.success) {
+            dispatch(loginAction(response.data));
+            navigate('/dashboard');
+          }
+          console.log("Login form is valid", formData);
+        }
+      } catch (error) {
+        console.log("Error", error);
       }
     };
   
@@ -114,4 +127,4 @@ const Login: React.FC = () => {
 };
   
 
-export default Login
+  export default Login;

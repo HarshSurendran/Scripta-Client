@@ -1,21 +1,37 @@
 import { SignupFormData } from "@/types/authTypes";
 import { apiInstance } from "./apiInstance"
 
-
-
-export const login = async (email: string, password: string) => {
+export const login = async (identifier: string, password: string) => {
     try {
-        const response = await apiInstance.post('/login', { email, password });
+        const response = await apiInstance.post('auth/login', { identifier, password });
         return response.data;
     } catch (error) {
         throw error;
     }
 }
 
-export const signup = async (formData: SignupFormData) => {
+export const signup = async (formData: Omit<SignupFormData, "confirmPassword">) => {
     try {
-        const resposne = await apiInstance.post('/signup', formData);
+        const resposne = await apiInstance.post('auth/signup', formData);
         return resposne.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const logout = async () => {
+    try {
+        const response = await apiInstance.post('auth/logout');
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getArticles = async (preference: string[] ) => {
+    try {
+        const response = await apiInstance.post('/articles', { preference });
+        return response.data;
     } catch (error) {
         throw error;
     }

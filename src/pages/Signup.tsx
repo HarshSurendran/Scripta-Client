@@ -72,10 +72,11 @@ const Signup: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {      
-      if (validateForm()) {
-        const response = await signup(formData);
+      if (validateForm()) {      
+        const { confirmPassword, ...payload } = formData; 
+        const response = await signup(payload);
         if (response.success) {
-          dispatch(login(response.data.user))
+          dispatch(login(response.data.user));
           navigate('/dashboard');
         }
         console.log("Form is valid", formData);

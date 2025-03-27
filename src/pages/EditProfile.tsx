@@ -13,6 +13,10 @@ import {
 import { motion } from 'framer-motion';
 import { Edit, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { logout } from '@/services/auth';
+import {logout as logoutAction} from '@/redux/slice/userSlice'
+import { useDispatch } from 'react-redux';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 interface ProfileEditProps {
   initialData?: {
@@ -39,16 +43,14 @@ const EditProfile: React.FC<ProfileEditProps> = ({
     dob: initialData.dob,
     interestedCategory: initialData.interestedCategory
   });
-    
-
-
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
-
   const [passwordError, setPasswordError] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -106,7 +108,21 @@ const EditProfile: React.FC<ProfileEditProps> = ({
             ...prev,
             interestedCategory: prev.interestedCategory.filter(c => c !== category)
         }));
+  }
+  
+  const handleLogout = async () => {
+    try {
+      const response = await logout();
+      if (response.success) {
+        dispatch(logoutAction());
+        navigate('/');
+      } else {
+        console.log("Error in logout");
+      }
+    } catch (error) {
+      console.log(error);
     }
+  };
 
   const interestCategories = [
     'Technology',
@@ -290,6 +306,12 @@ const EditProfile: React.FC<ProfileEditProps> = ({
                 </div>
               </div>
             </div>
+            <Button 
+              onClick={handleLogout}
+              className="w-full bg-white text-black hover:bg-black hover:text-white mt-4"
+            >
+              Sign Out
+            </Button>
           </CardContent>
         </Card>
       </motion.div>
