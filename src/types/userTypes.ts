@@ -2,6 +2,7 @@ export type User = {
     _id: string;
     firstName: string;
     lastName: string;
+    shortName: string;
     email: string;
     phone: number;
     dob?: Date;
@@ -13,6 +14,7 @@ export interface UserState {
     _id?: string;
     firstName: string;
     lastName: string;
+    shortName: string;
     email: string;
     phone: number;
     dob: string;

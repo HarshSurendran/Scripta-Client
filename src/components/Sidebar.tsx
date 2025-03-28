@@ -5,6 +5,8 @@ import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Home, PenTool, Settings } from 'lucide-react';
+import { RootState } from '@/redux/store/store';
+import { useSelector } from 'react-redux';
 
 
 // Sidebar Menu Items
@@ -31,11 +33,10 @@ const SIDEBAR_MENU = [
     }
   ];
 
-const Sidebar: React.FC<{ mobile?: boolean }> = ({ mobile}) => {
+const Sidebar: React.FC<{ mobile?: boolean }> = ({ mobile }) => {
+    const user = useSelector((state: RootState) => state.user);
     const navigate = useNavigate();
     
-
-
     return (
         <motion.div
             initial={{ opacity: mobile ? 0 : 1, x: mobile ? -50 : 0 }}
@@ -49,11 +50,11 @@ const Sidebar: React.FC<{ mobile?: boolean }> = ({ mobile}) => {
             <div className="flex items-center space-x-4">
                 <Avatar>
                     <AvatarImage src="/api/placeholder/50/50" />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarFallback className='text-black bg-gray-100'>{user.shortName}</AvatarFallback>
                 </Avatar>
                 <div>
-                    <h2 className="text-xl font-bold">John Doe</h2>
-                    <p className="text-gray-400">@johndoe</p>
+                    <h2 className="text-xl font-bold">{user.firstName + " " + user.lastName}</h2>
+                    <p className="text-gray-400">@{user.firstName+""+user.lastName}</p>
                 </div>
             </div>
 

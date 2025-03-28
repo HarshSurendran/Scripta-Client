@@ -7,12 +7,12 @@ import { Menu } from 'lucide-react';
 import React, { useState } from 'react'
 import { Outlet } from 'react-router-dom';
 import {motion} from 'framer-motion'
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store/store';
 
 const DashboardLayout: React.FC = () => {
-    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  
-
-    
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const shortName = useSelector((state: RootState) => state.user.shortName);
 
 return (
     <div className="flex min-h-screen bg-gray-50">
@@ -42,7 +42,7 @@ return (
           <div className="flex items-center space-x-2">
             <Avatar className="w-8 h-8">
               <AvatarImage src="/api/placeholder/50/50" />
-              <AvatarFallback>JD</AvatarFallback>
+            <AvatarFallback>{shortName}</AvatarFallback>
             </Avatar>
           </div>
         </div>

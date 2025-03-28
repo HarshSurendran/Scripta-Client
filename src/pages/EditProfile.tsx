@@ -14,12 +14,13 @@ import { motion } from 'framer-motion';
 import { Edit, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { logout } from '@/services/auth';
-import {login, logout as logoutAction} from '@/redux/slice/userSlice'
+import { logout as logoutAction, updateProfile as updateProfileAction } from '@/redux/slice/userSlice'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '@/redux/store/store';
 import { getAllCategories, updateProfile } from '@/services/user';
 import { Category } from '@/types/categoryTypes';
+
 
 
 
@@ -85,7 +86,7 @@ const EditProfile: React.FC = () => {
       }
       const response = await updateProfile(updateDto);
       if (response.status === 204) {
-        dispatch(login(profileData));
+        dispatch(updateProfileAction(profileData));
         console.log("Profile updated successfully");
       }
     } catch (error) {

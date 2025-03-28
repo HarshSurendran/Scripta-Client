@@ -7,6 +7,7 @@ const userSlice = createSlice({
         _id: "",
         firstName: "",
         lastName: "",
+        shortName: "",
         email: "",
         phone: 0,
         dob: "",
@@ -19,6 +20,7 @@ const userSlice = createSlice({
             state._id = action.payload._id;
             state.firstName = action.payload.firstName;
             state.lastName = action.payload.lastName;
+            state.shortName = action.payload.shortName;
             state.email = action.payload.email;
             state.phone = action.payload.phone;
             state.dob = action.payload.dob;
@@ -30,6 +32,7 @@ const userSlice = createSlice({
             state._id = "";
             state.firstName = "";
             state.lastName = "";
+            state.shortName = "";
             state.email = "";
             state.phone = 0;
             state.dob = "";
@@ -39,9 +42,20 @@ const userSlice = createSlice({
         },
         addInterestCategories: (state, action ) => {
             state.interestedCategories = [...state.interestedCategories, ...action.payload.interestedCategories];
+        },
+        updateProfile: (state, action) => {
+            state._id = state._id;
+            state.email = state.email;
+            state.phone = state.phone;
+            state.shortName = state.shortName;
+            state.image = state.image;
+            state.firstName = action.payload.firstName;
+            state.lastName = action.payload.lastName;
+            state.dob = action.payload.dob;
+            state.interestedCategories = action.payload.interestedCategories;
         }
     },
 });
 
-export const { login, logout, addInterestCategories } = userSlice.actions;
+export const { login, logout, addInterestCategories, updateProfile } = userSlice.actions;
 export default userSlice.reducer;
