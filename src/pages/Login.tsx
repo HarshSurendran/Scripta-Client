@@ -59,7 +59,8 @@ const Login: React.FC = () => {
         if (validateForm()) {
           const response = await login(formData.identifier, formData.password);
           if (response.success) {
-            dispatch(loginAction(response.data));
+            localStorage.setItem("userToken", response.data.userToken)
+            dispatch(loginAction(response.data.user));
             navigate('/dashboard');
           }
           console.log("Login form is valid", formData);

@@ -76,6 +76,7 @@ const Signup: React.FC = () => {
         const { confirmPassword, ...payload } = formData; 
         const response = await signup(payload);
         if (response.success) {
+          localStorage.setItem("userToken", response.data.userToken);
           dispatch(login(response.data.user));
           navigate('/dashboard');
         }
