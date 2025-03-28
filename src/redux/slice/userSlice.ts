@@ -1,5 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit"
 
+interface UserState {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: number;
+    dob: string;
+    image: string;
+    interestedCategories: string[];
+    isAuthenticated: boolean;
+}
+
 const userSlice = createSlice({
     name: "user",
     initialState: {
@@ -11,7 +22,7 @@ const userSlice = createSlice({
         image: "",
         interestedCategories: [],
         isAuthenticated: false
-    },
+    } as UserState,
     reducers: {
         login: (state, action) => {
             state.firstName = action.payload.firstName;
@@ -33,8 +44,11 @@ const userSlice = createSlice({
             state.interestedCategories = [];
             state.isAuthenticated = false;
         },
+        addInterestCategories: (state, action ) => {
+            state.interestedCategories = [...state.interestedCategories, ...action.payload.interestedCategories];
+        }
     },
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, addInterestCategories } = userSlice.actions;
 export default userSlice.reducer;
