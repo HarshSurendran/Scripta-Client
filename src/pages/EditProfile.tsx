@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,43 +14,51 @@ import { motion } from 'framer-motion';
 import { Edit, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { logout } from '@/services/auth';
-import {logout as logoutAction} from '@/redux/slice/userSlice'
-import { useDispatch } from 'react-redux';
-import { Navigate, useNavigate } from 'react-router-dom';
+import {login, logout as logoutAction} from '@/redux/slice/userSlice'
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { RootState } from '@/redux/store/store';
+import { getAllCategories, updateProfile } from '@/services/user';
+import { Category } from '@/types/categoryTypes';
 
-interface ProfileEditProps {
-  initialData?: {
-    firstName: string;
-    lastName: string;
-    dob: string;
-    interestedCategory: string[];
-  };
-  onSave?: (data: any) => void;
-}
 
-const EditProfile: React.FC<ProfileEditProps> = ({ 
-  initialData = {
-    firstName: '',
-    lastName: '',
-    dob: '',
-    interestedCategory: ["Technology"]
-  },
-  onSave 
-}) => {
-  const [profileData, setProfileData] = useState({
-    firstName: initialData.firstName,
-    lastName: initialData.lastName,
-    dob: initialData.dob,
-    interestedCategory: initialData.interestedCategory
-  });
+
+const EditProfile: React.FC = () => {
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
   const [passwordError, setPasswordError] = useState('');
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
+  
+  
+  const user = useSelector((state: RootState) => state.user);
+  const [profileData, setProfileData] = useState({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    dob: user.dob,
+    interestedCategories: user.interestedCategories
+  });
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await getAllCategories();
+      if (response.success) {
+        const data = response.data as Category[];
+        setAllCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -68,8 +76,21 @@ const EditProfile: React.FC<ProfileEditProps> = ({
     }));
   };
 
-  const handleSaveProfile = () => {
-    onSave?.(profileData);
+  //TODO: validation of profile update
+  const handleSaveProfile = async () => {
+    try {
+      const updateDto = {
+        ...profileData,
+        dob: new Date(profileData.dob)
+      }
+      const response = await updateProfile(updateDto);
+      if (response.status === 204) {
+        dispatch(login(profileData));
+        console.log("Profile updated successfully");
+      }
+    } catch (error) {
+      console.log("Error while saving profile",error);
+    }
   };
 
   const handleChangePassword = () => {
@@ -84,30 +105,29 @@ const EditProfile: React.FC<ProfileEditProps> = ({
     }
 
     setPasswordError('');
-    onSave?.({ password: passwordData.newPassword });
+    //Todo: handle password change logic
     
     setPasswordData({
       currentPassword: '',
       newPassword: '',
       confirmPassword: ''
     });
-    };
+  };
     
-    const handleCategoryChange = (category: string) => {
-        console.log(profileData, category)
-      setProfileData(prev => ({
-        ...prev,
-        interestedCategory: prev.interestedCategory.includes(category)
-          ? prev.interestedCategory
-          : [...prev.interestedCategory, category]
-      }));
-    };
+  const handleCategoryChange = (category: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      interestedCategories: prev.interestedCategories.includes(category)
+        ? prev.interestedCategories
+        : [...prev.interestedCategories, category]
+    }));
+  };
 
-    const removeInterestedCategory = (category: string) => {
-        setProfileData(prev => ({
-            ...prev,
-            interestedCategory: prev.interestedCategory.filter(c => c !== category)
-        }));
+  const removeInterestedCategory = (category: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      interestedCategories: prev.interestedCategories.filter(c => c !== category)
+    }));
   }
   
   const handleLogout = async () => {
@@ -117,23 +137,14 @@ const EditProfile: React.FC<ProfileEditProps> = ({
         dispatch(logoutAction());
         navigate('/');
       } else {
-        console.log("Error in logout");
+        ("Error in logout");
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const interestCategories = [
-    'Technology',
-    'Sports',
-    'Music',
-    'Movies',
-    'Books',
-    'Travel',
-    'Food',
-    'Gaming'
-  ];
+
 
   return (
     <div className="min-h-screen  bg-gray-50 text-white p-6">
@@ -142,7 +153,7 @@ const EditProfile: React.FC<ProfileEditProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="max-w-4xl mx-auto bg-gray-900 rounded-xl shadow-2xl p-8"
-          >
+      >
         <h1 className="text-3xl font-bold text-white mb-8 flex items-center">
           <Edit className="mr-4 text-blue-500" /> Edit Profile
         </h1>
@@ -191,54 +202,51 @@ const EditProfile: React.FC<ProfileEditProps> = ({
                       onChange={handleProfileChange}
                       className="bg-neutral-800 border-neutral-700 text-white"
                     />
-                                  </div>
+                  </div>
                                   
                   <div>
                     <Label htmlFor="interestedCategory" className="text-neutral-300 mb-1">
                       Interested Category
                     </Label>
-                    <Select
-                     
-                      onValueChange={(value) => handleCategoryChange(value)}
-                    >
+                    <Select onValueChange={(value) => handleCategoryChange(value)}>
                       <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                         <SelectValue placeholder="Select Category" />
                       </SelectTrigger>
                       <SelectContent className="bg-neutral-900 border-neutral-800">
-                        {interestCategories.map((category) => (
-                          <SelectItem 
-                            key={category} 
-                            value={category}
+                        {allCategories.map((category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.name}
                             className="text-white hover:bg-neutral-800"
                           >
-                            {category}
+                            {category.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                                   
-            <div className="flex flex-wrap gap-2">
-              {profileData.interestedCategory.map(tag => (
-                <Badge
-                  key={tag} 
-                  variant="secondary" 
-                  className="flex items-center"
-                >
-                  {tag}
-                  <button>
-                  <X 
-                    className="ml-2 cursor-pointer" 
-                    size={16} 
-                    onClick={() => removeInterestedCategory(tag)} 
-                    />
-                    </button>
-                </Badge>
-              ))}
-            </div>
+                  <div className="flex flex-wrap gap-2">
+                    {profileData.interestedCategories.map(tag => (
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="flex items-center"
+                      >
+                        {tag}
+                        <button>
+                          <X
+                            className="ml-2 cursor-pointer"
+                            size={16}
+                            onClick={() => removeInterestedCategory(tag)}
+                          />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
           
 
-                  <Button 
+                  <Button
                     onClick={handleSaveProfile}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   >
@@ -297,7 +305,7 @@ const EditProfile: React.FC<ProfileEditProps> = ({
                       {passwordError}
                     </div>
                   )}
-                  <Button 
+                  <Button
                     onClick={handleChangePassword}
                     className="w-full bg-green-600 hover:bg-green-700 text-white"
                   >
@@ -306,7 +314,7 @@ const EditProfile: React.FC<ProfileEditProps> = ({
                 </div>
               </div>
             </div>
-            <Button 
+            <Button
               onClick={handleLogout}
               className="w-full bg-white text-black hover:bg-black hover:text-white mt-4"
             >

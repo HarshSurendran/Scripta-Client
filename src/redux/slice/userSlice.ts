@@ -1,19 +1,10 @@
+import { UserState } from "@/types/userTypes";
 import { createSlice } from "@reduxjs/toolkit"
-
-interface UserState {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: number;
-    dob: string;
-    image: string;
-    interestedCategories: string[];
-    isAuthenticated: boolean;
-}
 
 const userSlice = createSlice({
     name: "user",
     initialState: {
+        _id: "",
         firstName: "",
         lastName: "",
         email: "",
@@ -25,6 +16,7 @@ const userSlice = createSlice({
     } as UserState,
     reducers: {
         login: (state, action) => {
+            state._id = action.payload._id;
             state.firstName = action.payload.firstName;
             state.lastName = action.payload.lastName;
             state.email = action.payload.email;
@@ -35,6 +27,7 @@ const userSlice = createSlice({
             state.isAuthenticated = true;
         },
         logout: (state) => {
+            state._id = "";
             state.firstName = "";
             state.lastName = "";
             state.email = "";

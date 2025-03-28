@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ImagePlus, 
@@ -28,29 +28,29 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-
-// Interfaces
-interface ImageFile extends File {
-  preview: string;
-}
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store/store';
+import { createArticle, getAllCategories } from '@/services/user';
+import { ImageFile } from '@/types/articleTypes';
+import { useNavigate } from 'react-router-dom';
+import { Category } from '@/types/categoryTypes';
 
 interface AiSuggestion {
   text: string;
   confidence: number;
 }
 
-const CATEGORIES = [
-  'Technology', 
-  'Science', 
-  'Arts', 
-  'Culture', 
-  'Sports', 
-  'Health', 
-  'Travel'
-];
+// const CATEGORIES = [
+//   'Technology', 
+//   'Science', 
+//   'Arts', 
+//   'Culture', 
+//   'Sports', 
+//   'Health', 
+//   'Travel'
+// ];
 
 const ArticleCreation: React.FC = () => {
-  // State Management
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -58,9 +58,29 @@ const ArticleCreation: React.FC = () => {
   const [currentTag, setCurrentTag] = useState('');
   const [images, setImages] = useState<ImageFile[]>([]);
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  const user = useSelector((state: RootState) => state.user);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchCategories();
+  },[]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await getAllCategories();
+      if (response.success) {
+        const data = response.data as Category[];
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -75,6 +95,7 @@ const ArticleCreation: React.FC = () => {
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
+
   const addTag = () => {
     if (currentTag.trim() && !tags.includes(currentTag.trim())) {
       setTags(prev => [...prev, currentTag.trim()]);
@@ -83,12 +104,13 @@ const ArticleCreation: React.FC = () => {
       setCurrentTag('');
     }
   };
+
   const removeTag = (tagToRemove: string) => {
     console.log(tagToRemove)
     setTags(prev => prev.filter(tag => tag !== tagToRemove));
   };
 
-  // AI Suggestion Simulation (would be replaced with actual AI API)
+  // TODO: AI Suggestion Simulation
   const generateAISuggestions = useCallback(() => {
     // Simulated AI suggestions based on current text
     const mockSuggestions: AiSuggestion[] = [
@@ -99,17 +121,36 @@ const ArticleCreation: React.FC = () => {
     setAiSuggestions(mockSuggestions);
   }, [description]);
 
-  // Submit Handler
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Implement article submission logic
-    console.log({
-      title,
-      description,
-      category,
-      tags,
-      images
-    });
+  const handleSubmit = async (e: React.FormEvent) => {
+    try {
+      e.preventDefault();
+      if (!user._id) {
+        console.log("Sorry user id is not available, please login again");
+        return
+      }
+      const formData = new FormData();
+
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("category", category);
+      formData.append("author", user._id);
+    
+      tags.forEach((tag, index) => {
+        formData.append(`tags[${index}]`, tag);
+      });
+    
+      images.forEach((image) => {
+        formData.append(`images`, image as Blob);
+      });
+      console.log("Form data", formData);
+    
+      const response = await createArticle(formData);
+      if (response.success) {
+        navigate('/articles')
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -192,8 +233,8 @@ const ArticleCreation: React.FC = () => {
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent className="bg-gray-900 text-white">
-                {CATEGORIES.map(cat => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                {categories.map(cat => (
+                  <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

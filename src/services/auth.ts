@@ -27,12 +27,3 @@ export const logout = async () => {
         throw error;
     }
 }
-
-export const getArticles = async (preference: string[] ) => {
-    try {
-        const response = await apiInstance.post('/articles', { preference });
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-}

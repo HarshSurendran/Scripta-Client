@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Article } from '@/pages/Dashboard';
+import { Article } from '@/types/articleTypes';
 
 
 
@@ -23,9 +23,9 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
         transition={{ duration: 0.5 }}
         className="bg-gray-900 rounded-lg shadow-lg overflow-hidden mb-6"
       >
-        {article.images.length > 0 && (
+        {article.imageurls.length > 0 && (
           <img 
-            src={article.images[0]} 
+            src={article.imageurls[0]} 
             alt={article.title} 
             className="w-full h-64 object-cover"
           />
@@ -34,11 +34,11 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center space-x-3">
               <Avatar>
-                <AvatarImage src={article.author.avatar} />
-                <AvatarFallback>{article.author.name[0]}</AvatarFallback>
+                <AvatarImage src={article.author.image} />
+                <AvatarFallback>{article.author.firstName}</AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="text-white font-bold">{article.author.name}</h3>
+                <h3 className="text-white font-bold">{article.author.firstName + ' ' + article.author.lastName}</h3>
                 <Badge variant="secondary">{article.category}</Badge>
               </div>
             </div>
