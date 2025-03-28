@@ -1,6 +1,3 @@
-import { A } from "node_modules/framer-motion/dist/types.d-B50aGbjN";
-import { User } from "./userTypes";
-
 export type CreateArticle = {
     title: string;
     description: string;
@@ -18,6 +15,7 @@ export interface Author {
     _id: string;
     firstName: string;
     lastName: string;
+    shortName: string;
     email: string;
     phone: number;
     image: string;

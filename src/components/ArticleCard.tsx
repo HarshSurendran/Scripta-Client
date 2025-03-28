@@ -35,7 +35,7 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
             <div className="flex items-center space-x-3">
               <Avatar>
                 <AvatarImage src={article.author.image} />
-                <AvatarFallback>{article.author.firstName}</AvatarFallback>
+                <AvatarFallback>{article.author.shortName}</AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="text-white font-bold">{article.author.firstName + ' ' + article.author.lastName}</h3>
