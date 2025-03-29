@@ -32,5 +32,7 @@ export interface Article {
     author: Author;
     likes: number;
     dislikes: number;
+    likedBy: string[];
+    dislikedBy: string[];
 }
   

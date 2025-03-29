@@ -37,11 +37,11 @@ const CategorySelectionModal: React.FC = () => {
     }
   };
   
-  const handleCategoryToggle = (categoryId: string) => {
+  const handleCategoryToggle = (catName: string) => {
     setSelectedCategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
+      prev.includes(catName)
+        ? prev.filter(id => id !== catName)
+        : [...prev, catName]
     );
   };
   
@@ -49,7 +49,7 @@ const CategorySelectionModal: React.FC = () => {
     if (selectedCategories.length === categories.length) {
       setSelectedCategories([]);
     } else {
-      setSelectedCategories(categories.map(cat => cat.id));
+      setSelectedCategories(categories.map(cat => cat.name));
     }
   };
   

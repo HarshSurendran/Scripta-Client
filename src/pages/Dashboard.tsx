@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchArticles();
-  }, []);
+  }, [user.interestedCategories]);
 
   const fetchArticles = async () => {
     try {
