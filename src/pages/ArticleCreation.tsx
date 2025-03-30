@@ -35,6 +35,7 @@ import { useNavigate } from 'react-router-dom';
 import { Category } from '@/types/categoryTypes';
 import { createArticle } from '@/services/article';
 import { getAllCategories } from '@/services/categories';
+import { validateCreateArticle } from '@/validators/articlesValidators';
 
 interface AiSuggestion {
   text: string;
@@ -52,6 +53,7 @@ const ArticleCreation: React.FC = () => {
   const [images, setImages] = useState<ImageFile[]>([]);
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -78,6 +80,7 @@ const ArticleCreation: React.FC = () => {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
+      setErrors(prevErrors => ({ ...prevErrors, images: '' }));
       const newImages: ImageFile[] = Array.from(files).map(file => Object.assign(file, {
         preview: URL.createObjectURL(file)
       }));
@@ -86,6 +89,7 @@ const ArticleCreation: React.FC = () => {
   };
 
   const removeImage = (index: number) => {
+    setErrors(prevErrors => ({ ...prevErrors, images: '' }));
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
@@ -122,8 +126,17 @@ const ArticleCreation: React.FC = () => {
         console.log("Sorry user id is not available, please login again");
         return
       }
-      const formData = new FormData();
 
+      const validateStatus = validateCreateArticle({ title, description, category, tags, images });
+      if (!validateStatus.success) {
+        let errors = validateStatus.error.issues.reduce((acc, issue) => {
+          acc[issue.path[0]] = issue.message;
+          return acc;
+        }, {} as Record<string, string>);        
+        setErrors(errors);  
+        return
+      }
+      const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
       formData.append("category", category);
@@ -136,8 +149,7 @@ const ArticleCreation: React.FC = () => {
       images.forEach((image) => {
         formData.append(`images`, image as Blob);
       });
-      console.log("Form data", formData);
-    
+
       const response = await createArticle(formData);
       if (response.success) {
         navigate('/articles')
@@ -166,10 +178,14 @@ const ArticleCreation: React.FC = () => {
             <Label className="text-white">Article Title</Label>
             <Input 
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setErrors(prev => ({ ...prev, title: '' }))
+              }}
               placeholder="Enter article title"
               className="bg-gray-800 text-white border-gray-700 mt-1"
             />
+            {errors.title && <p className="text-red-500 mt-1">{errors.title}</p>}
           </div>
 
           {/* Description with AI Assistance */}
@@ -215,10 +231,14 @@ const ArticleCreation: React.FC = () => {
             <Textarea 
               ref={descriptionRef}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setErrors(prev => ({ ...prev, description: '' }));
+              } }
               placeholder="Write your article description"
               className="min-h-[200px] bg-gray-800 text-white border-gray-700"
             />
+            {errors.description && <p className="text-red-500 mt-1">{errors.description}</p>}
           </div>
 
           {/* Category Select */}
@@ -234,6 +254,7 @@ const ArticleCreation: React.FC = () => {
                 ))}
               </SelectContent>
             </Select>
+            {errors.category && <p className="text-red-500 mt-1">{errors.category}</p>}
           </div>
 
           {/* Tags */}
@@ -242,7 +263,10 @@ const ArticleCreation: React.FC = () => {
             <div className="flex space-x-2 mb-2">
               <Input 
                 value={currentTag}
-                onChange={(e) => setCurrentTag(e.target.value)}
+                onChange={(e) => {
+                  setCurrentTag(e.target.value);
+                  setErrors(prev => ({ ...prev, tags: '' }))
+                }}
                 placeholder="Add a tag"
                 className="bg-gray-800 text-white border-gray-700"
                 onKeyDown={(e) => e.key === 'Enter' && addTag()}
@@ -259,9 +283,9 @@ const ArticleCreation: React.FC = () => {
             <div className="flex flex-wrap gap-2">
               {tags.map(tag => (
                 <Badge 
-                  key={tag} 
-                  variant="secondary" 
-                  className="flex items-center"
+                key={tag} 
+                variant="secondary" 
+                className="flex items-center"
                 >
                   {tag}
                   <button>
@@ -274,6 +298,7 @@ const ArticleCreation: React.FC = () => {
                 </Badge>
               ))}
             </div>
+              {errors.tags && <p className="text-red-500 mt-1">{errors.tags}</p>}
           </div>
 
           {/* Image Upload */}
@@ -319,6 +344,7 @@ const ArticleCreation: React.FC = () => {
                 </div>
               ))}
             </div>
+            {errors.images && <p className="text-red-500 mt-1">{errors.images}</p>}
           </div>
 
           {/* Submit Button */}

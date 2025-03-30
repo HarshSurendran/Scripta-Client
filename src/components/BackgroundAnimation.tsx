@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 
 const BackgroundAnimation = () => {
     return (
@@ -16,7 +15,8 @@ const BackgroundAnimation = () => {
         //     repeat: Infinity,
         //     ease: "linear",
         //   }}
-        // />
+      // />
+      <div>Background</div>
       );
 };
 

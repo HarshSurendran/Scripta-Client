@@ -252,7 +252,7 @@
 
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Edit, Eye, EyeOff, X, Plus, Trash2, ImagePlus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Eye, EyeOff, X, Trash2, ImagePlus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -345,15 +345,15 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
     }));
   };
 
-  const handleAddImage = () => {
-    if (editFormData.newImageUrl && !editFormData.imageurls.includes(editFormData.newImageUrl)) {
-      setEditFormData(prev => ({
-        ...prev,
-        imageurls: [...prev.imageurls, prev.newImageUrl],
-        newImageUrl: ''
-      }));
-    }
-  };
+  // const handleAddImage = () => {
+  //   if (editFormData.newImageUrl && !editFormData.imageurls.includes(editFormData.newImageUrl)) {
+  //     setEditFormData(prev => ({
+  //       ...prev,
+  //       imageurls: [...prev.imageurls, prev.newImageUrl],
+  //       newImageUrl: ''
+  //     }));
+  //   }
+  // };
 
   const handleRemoveImage = (indexToRemove: number) => {
     setEditFormData(prev => ({
