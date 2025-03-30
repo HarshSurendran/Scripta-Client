@@ -35,4 +35,12 @@ export interface Article {
     likedBy: string[];
     dislikedBy: string[];
 }
+
+export type CreateArticleValidate = {
+    title: string;
+    description: string;
+    images: ImageFile[];
+    tags: string[];
+    category: string;
+};
   

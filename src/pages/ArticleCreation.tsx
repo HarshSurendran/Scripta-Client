@@ -137,9 +137,9 @@ const ArticleCreation: React.FC = () => {
         return
       }
       const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("category", category);
+      formData.append("title", validateStatus.data.title);
+      formData.append("description", validateStatus.data.description);
+      formData.append("category", validateStatus.data.category);
       formData.append("author", user._id);
     
       tags.forEach((tag, index) => {

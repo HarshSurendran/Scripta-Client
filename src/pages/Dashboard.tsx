@@ -32,8 +32,6 @@ const Dashboard: React.FC = () => {
     ? articles.filter(article => article.category === selectedCategory)
     : articles;
   
-  console.log(filteredArticles);
-  
   
   return (    
     <>
@@ -41,11 +39,9 @@ const Dashboard: React.FC = () => {
         <CategorySelectionModal />
       )}
       <div className="flex min-h-screen bg-gray-100">
-        <div className="flex-1 bg-gray-50 p-6 md:">
+        <div className="flex-1 bg-gray-50 p-6 ">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-wrap gap-2 mb-6">
-            
-              {/* Category Filters */}
               <Button
                 variant={selectedCategory === null ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(null)}

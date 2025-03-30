@@ -252,7 +252,7 @@
 
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Edit, Eye, EyeOff, X, Trash2, ImagePlus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Eye, EyeOff, X, ImagePlus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -262,47 +262,48 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { updateArticle } from '@/services/article';
+import { validateImage, validateUpdateArticle } from '@/validators/articlesValidators';
+
 
 interface ArticleCardProps {
   article: Article;
-  onUpdate?: (updatedArticle: Article) => void;
 }
 
-
-
-const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => {
+const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   const [articleBody, setArticleBody] = useState(article);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [expandedDescription, setExpandedDescription] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [images, setImages] = useState<ImageFile[]>([]);
+  const [newImages, setNewImages] = useState<ImageFile[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  // Edit form state
+  const [editArticleData, setEditArticleData] = useState({
+    title: articleBody.title,
+    description: articleBody.description,
+    tags: articleBody.tags.join(', '),
+    imageurls: [...articleBody.imageurls],
+  });
+  
 
   //image input
   const fileInputRef = useRef<HTMLInputElement>(null);
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setErrors(prevErrors => ({ ...prevErrors, images: '', imageurls: '' }));
       const files = event.target.files;
       if (files) {
         const newImages: ImageFile[] = Array.from(files).map(file => Object.assign(file, {
           preview: URL.createObjectURL(file)
         }));
-        setImages(prev => [...prev, ...newImages]);
+        setNewImages(prev => [...prev, ...newImages]);
       }
   };
   const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    setErrors(prevErrors => ({ ...prevErrors, imageurls: '' }));
+    setNewImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  
-  
-  // Edit form state
-  const [editFormData, setEditFormData] = useState({
-    title: articleBody.title,
-    description: articleBody.description,
-    tags: articleBody.tags.join(', '),
-    imageurls: [...articleBody.imageurls],
-    newImageUrl: ''
-  });
-  
   // Determine if description is long and needs truncation
   const isLongDescription = articleBody.description.length > 150;
   const truncatedDescription = isLongDescription 
@@ -328,35 +329,29 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     // Reset form data when closing without saving
-    setEditFormData({
+    setEditArticleData({
       title: articleBody.title,
       description: articleBody.description,
       tags: articleBody.tags.join(', '),
       imageurls: [...articleBody.imageurls],
-      newImageUrl: ''
     });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setEditFormData(prev => ({
+    setEditArticleData(prev => ({
       ...prev,
       [name]: value
     }));
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: ''
+    }))
   };
 
-  // const handleAddImage = () => {
-  //   if (editFormData.newImageUrl && !editFormData.imageurls.includes(editFormData.newImageUrl)) {
-  //     setEditFormData(prev => ({
-  //       ...prev,
-  //       imageurls: [...prev.imageurls, prev.newImageUrl],
-  //       newImageUrl: ''
-  //     }));
-  //   }
-  // };
-
   const handleRemoveImage = (indexToRemove: number) => {
-    setEditFormData(prev => ({
+    setErrors(prevErrors => ({ ...prevErrors, imageurls: '' }));
+    setEditArticleData(prev => ({
       ...prev,
       imageurls: prev.imageurls.filter((_, index) => index !== indexToRemove)
     }));
@@ -364,30 +359,66 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
 
   const handleSaveChanges = async () => {
     try {
-      // Create updated article object
+      setLoading(true);
       const updatedArticle = {
-        ...articleBody,
-        title: editFormData.title,
-        description: editFormData.description,
-        tags: editFormData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
-        imageurls: editFormData.imageurls
+        title: editArticleData.title,
+        description: editArticleData.description,
+        tags: editArticleData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
+        imageurls: editArticleData.imageurls
       };
 
-      // Assume there would be an API call here to update the article
-      // const response = await updateArticle(updatedArticle);
-      
-      // For now, we'll just update the local state
-      setArticleBody(updatedArticle);
-      
-      // Call the onUpdate callback if provided
-      if (onUpdate) {
-        onUpdate(updatedArticle);
+      const validateStatus = validateUpdateArticle(updatedArticle);
+
+      if (!validateStatus.success) {
+        const errors = validateStatus.error.issues.reduce((acc, issue) => {
+          acc[issue.path[0]] = issue.message;
+          return acc;
+        },{} as Record<string, string>);        
+        setErrors(errors);
+        return
+      };
+
+      if (newImages.length > 0) {
+        const validateImageStatus = validateImage(newImages);
+        console.log(validateImageStatus, "This is validateImage status")
+        if (!validateImageStatus.success) {
+          setErrors(prevErrors => ({ ...prevErrors, imageurls: validateImageStatus.error.issues[0].message }));
+          return
+        }
+      };
+
+      if (newImages.length == 0 && updatedArticle.imageurls.length == 0) {
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          imageurls: 'At least one image is required'
+        }));
+        console.log("ENtered")
+        return
+      };
+
+      const formData = new FormData();
+      formData.append("title", validateStatus.data.title);
+      formData.append("description", validateStatus.data.description);
+      updatedArticle.tags.forEach((tag, index) => {
+        formData.append(`tags[${index}]`, tag);
+      });
+      formData.append("imageurls", validateStatus.data.imageurls.join(','));
+      if(newImages.length > 0) {
+        newImages.forEach((image) => {
+          formData.append(`images`, image as Blob);
+        });
+      };;
+      const response = await updateArticle(articleBody._id, formData);
+      if (response.success) {
+        setArticleBody((prev) => {
+          return { ...response.data, author: { ...prev.author },  }
+        });
+        setIsEditModalOpen(false);
       }
-      
-      // Close the modal
-      setIsEditModalOpen(false);
     } catch (error) {
       console.error("Failed to update article:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -402,8 +433,8 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
         {articleBody.imageurls.length > 0 ? (
           <div {...handlers} className="relative w-full h-64 overflow-hidden flex items-center">
             {articleBody.imageurls.length > 1 && (
-              <button 
-                onClick={prevImage} 
+              <button
+                onClick={prevImage}
                 className="absolute left-2 bg-black/50 p-2 rounded-full text-white z-10"
               >
                 <ChevronLeft size={20} />
@@ -419,8 +450,8 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
               transition={{ duration: 0.3 }}
             />
             {articleBody.imageurls.length > 1 && (
-              <button 
-                onClick={nextImage} 
+              <button
+                onClick={nextImage}
                 className="absolute right-2 bg-black/50 p-2 rounded-full text-white z-10"
               >
                 <ChevronRight size={20} />
@@ -454,9 +485,9 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
             </div>
             
             {/* Edit button */}
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleOpenEditModal}
               className="text-blue-400 hover:text-blue-500 hover:bg-gray-800"
             >
@@ -470,9 +501,9 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
           <div className="text-gray-300 mb-4">
             <p>{expandedDescription ? articleBody.description : truncatedDescription}</p>
             {isLongDescription && (
-              <Button 
-                variant="link" 
-                size="sm" 
+              <Button
+                variant="link"
+                size="sm"
                 onClick={toggleDescription}
                 className="text-blue-400 hover:text-blue-500 p-0 mt-1 h-auto"
               >
@@ -523,43 +554,46 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="title" className="text-white">Title</Label>
-              <Input 
-                id="title" 
-                name="title" 
-                value={editFormData.title} 
+              <Input
+                id="title"
+                name="title"
+                value={editArticleData.title}
                 onChange={handleInputChange}
                 className="bg-gray-800 border-gray-700 text-white"
               />
+              {errors.title && <p className="text-red-500">{errors.title}</p>}
             </div>
             
             <div className="grid gap-2">
               <Label htmlFor="description" className="text-white">Description</Label>
-              <Textarea 
-                id="description" 
-                name="description" 
-                value={editFormData.description} 
+              <Textarea
+                id="description"
+                name="description"
+                value={editArticleData.description}
                 onChange={handleInputChange}
                 rows={5}
                 className="bg-gray-800 border-gray-700 text-white resize-y"
               />
+              {errors.description && <p className="text-red-500">{errors.description}</p>}
             </div>
             
             <div className="grid gap-2">
               <Label htmlFor="tags" className="text-white">Tags (comma separated)</Label>
-              <Input 
-                id="tags" 
-                name="tags" 
-                value={editFormData.tags} 
+              <Input
+                id="tags"
+                name="tags"
+                value={editArticleData.tags}
                 onChange={handleInputChange}
                 className="bg-gray-800 border-gray-700 text-white"
                 placeholder="tech, news, tutorial"
               />
+              {errors.tags && <p className="text-red-500">{errors.tags}</p>}
             </div>
             
             {/* <div className="grid gap-2">
               <Label className="text-white">Images</Label>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
-                {editFormData.imageurls.map((url, index) => (
+                {editArticleData.imageurls.map((url, index) => (
                   <div key={index} className="relative group">
                     <img 
                       src={url} 
@@ -582,7 +616,7 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
                   id="newImageUrl" 
                   type='file'
                   name="newImageUrl" 
-                  value={editFormData.newImageUrl} 
+                  value={editArticleData.newImageUrl} 
                   onChange={handleInputChange}
                   className="bg-gray-800 border-gray-700 text-white flex-1"
                   placeholder="Enter image URL"
@@ -590,7 +624,7 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
                 <Button 
                   type="button" 
                   onClick={handleAddImage}
-                  disabled={!editFormData.newImageUrl}
+                  disabled={!editArticleData.newImageUrl}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Plus size={16} />
@@ -598,66 +632,69 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
               </div>
             </div> */}
 
-                      {/* Image Upload */}
-                      <div>
-                        <Label className="text-white mb-1">Upload Images</Label>
-                        <input 
-                          type="file" 
-                          multiple 
-                          accept="image/*"
-                          ref={fileInputRef}
-                          onChange={handleImageUpload}
-                          className="hidden"
-                        />
-                        <div 
-                          className="border-2 border-dashed border-gray-700 p-6 text-center cursor-pointer"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <div className="flex justify-center mb-4">
-                            <ImagePlus className="text-gray-500" size={48} />
-                          </div>
-                          <p className="text-gray-400">Click to upload images or drag and drop</p>
-                        </div>
+            {/* Image Upload */}
+            <div>
+              <Label className="text-white mb-1">Upload Images</Label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <div
+                className="border-2 border-dashed border-gray-700 p-6 text-center cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div className="flex justify-center mb-4">
+                  <ImagePlus className="text-gray-500" size={48} />
+                </div>
+                <p className="text-gray-400">Click to upload images or drag and drop</p>
+              </div>
             
-                        {/* Image Preview */}
+              {/* Image Preview */}
               <div className="grid grid-cols-3 md:grid-cols-5 gap-4 mt-4">
-                        {editFormData.imageurls.map((url, index) => (
-                            <div key={index} className="relative group">
-                              <img 
-                                src={url} 
-                                alt={`Article image ${index + 1}`} 
-                                className="w-full h-32 object-cover rounded-md"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveImage(index)}
-                                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          ))}
-                          {images.map((image, index) => (
-                            <div 
-                              key={index} 
-                              className="relative group"
-                            >
-                              <img 
-                                src={image.preview} 
-                                alt={`Upload ${index}`} 
-                                className="w-full h-24 object-cover rounded-lg"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => removeImage(index)}
-                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <X size={16} />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                {editArticleData.imageurls.map((url, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={url}
+                      alt={`Article image ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+                
+                {/* Display newly uploaded images */}
+                {newImages.map((image, index) => (
+                  <div
+                    key={index}
+                    className="relative group"
+                  >
+                    <img
+                      src={image.preview}
+                      alt={`Upload ${index}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {errors.imageurls && <p className="text-red-500">{errors.imageurls}</p>}
+            </div>
 
 
 
@@ -671,8 +708,8 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, onUpdate }) => 
             <Button variant="outline" onClick={handleCloseEditModal} className="text-black border-gray-600 hover:bg-gray-800 hover:text-white">
               Cancel
             </Button>
-            <Button onClick={handleSaveChanges} className="bg-blue-600 hover:bg-blue-700">
-              Save Changes
+            <Button disabled={loading} onClick={handleSaveChanges} className="bg-blue-600 hover:bg-blue-700">
+              {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </DialogContent>

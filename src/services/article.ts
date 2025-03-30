@@ -1,4 +1,3 @@
-import { Article } from "@/types/articleTypes";
 import { apiInstance } from "./apiInstance";
 
 export const createArticle = async (data: FormData) => {
@@ -19,10 +18,10 @@ export const getArticles = async (interestedCategories: string[]) => {
     }
 }
 
-export const updateArticle = async (articleId: string, data: Partial<Article>) => {
+export const updateArticle = async (articleId: string, data: FormData) => {
     try {
         const response = await apiInstance.patch(`/articles/${articleId}`, data);
-        return response;        
+        return response.data;        
     } catch (error) {
         throw error;
     }

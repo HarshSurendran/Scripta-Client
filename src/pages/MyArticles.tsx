@@ -3,7 +3,7 @@ import { getMyArticles } from '@/services/article';
 import { Article } from '@/types/articleTypes';
 import React, { useEffect, useState } from 'react'
 
-const MyArticles : React.FC = () => {
+const MyArticles: React.FC = () => {
     const [myArticles, setMyArticles] = useState<Article[]>([]);
 
     useEffect(() => {
@@ -20,14 +20,20 @@ const MyArticles : React.FC = () => {
             console.log(error);
         }
     }
+    
     return (
-    <>
-        {
-            myArticles.length && myArticles.map((article) => <OwnerArticleCard article={article} />)
-        }
-          </>
-      
-  )
-}
+        <>
+            <div className="flex min-h-screen bg-gray-100">
+                <div className="flex-1 bg-gray-50 p-6 ">
+                    <div className="max-w-4xl mx-auto">
+                        {
+                            myArticles.length && myArticles.map((article) => <OwnerArticleCard article={article} />)
+                        }
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
 
 export default MyArticles
