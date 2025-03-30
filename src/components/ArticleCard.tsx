@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ThumbsUp, ThumbsDown, Ban, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Ban, ChevronLeft, ChevronRight, EyeOff, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Article } from '@/types/articleTypes';
 import { useSwipeable } from 'react-swipeable';
-import { alterUserAction } from '@/services/user';
+import { alterUserAction } from '@/services/article';
 import { RootState } from '@/redux/store/store';
 import { useSelector } from 'react-redux';
 
@@ -15,6 +15,7 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
   const [userAction, setUserAction] = useState<'like' | 'dislike' | null>(article.likedBy.includes(user._id as string) ? 'like' : article.dislikedBy.includes(user._id as string) ? 'dislike' : null);
   const [articleBody, setArticleBody] = useState(article);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+   const [expandedDescription, setExpandedDescription] = useState(false);
 
   const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % article.imageurls.length);
   const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + article.imageurls.length) % article.imageurls.length);
@@ -23,6 +24,15 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
     onSwipedLeft: nextImage,
     onSwipedRight: prevImage,
   });
+
+  const isLongDescription = articleBody.description.length > 150;
+  const truncatedDescription = isLongDescription 
+    ? articleBody.description.substring(0, 150) + '...' 
+    : articleBody.description;
+  
+    const toggleDescription = () => {
+      setExpandedDescription(!expandedDescription);
+    };
   
   const handleUserAction = async (buttonClicked: "like button" | "dislike button") => {
     let action : "like" | "dislike" | null;
@@ -109,7 +119,24 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
         </div>
           
         <h2 className="text-xl font-bold text-white mb-2">{articleBody.title}</h2>
-        <p className="text-gray-300 mb-4">{articleBody.description}</p>
+        {/* <p className="text-gray-300 mb-4">{articleBody.description}</p> */}
+        <div className="text-gray-300 mb-4">
+            <p>{expandedDescription ? articleBody.description : truncatedDescription}</p>
+            {isLongDescription && (
+              <Button 
+                variant="link" 
+                size="sm" 
+                onClick={toggleDescription}
+                className="text-blue-400 hover:text-blue-500 p-0 mt-1 h-auto"
+              >
+                {expandedDescription ? (
+                  <><EyeOff size={14} className="mr-1" /> Show Less</>
+                ) : (
+                  <><Eye size={14} className="mr-1" /> Read More</>
+                )}
+              </Button>
+            )}
+          </div>
           
         <div className="flex flex-wrap gap-2 mb-4">
           {articleBody.tags.map(tag => (

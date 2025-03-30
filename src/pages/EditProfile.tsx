@@ -18,7 +18,8 @@ import { logout as logoutAction, updateProfile as updateProfileAction } from '@/
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '@/redux/store/store';
-import { getAllCategories, updateProfile } from '@/services/user';
+import { updateProfile } from '@/services/user';
+import { getAllCategories } from '@/services/categories';
 import { Category } from '@/types/categoryTypes';
 
 

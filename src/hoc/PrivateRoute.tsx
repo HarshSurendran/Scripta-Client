@@ -7,8 +7,8 @@ interface PrivateRoute {
   }
 
 const PrivateRoute: React.FC<PrivateRoute> = ({ component: Component }) => {
-    const  isAuthenticated = useSelector((state: any) => state.user.isAuthenticated);
-    return isAuthenticated? <Component /> : <Navigate to="/login" />;
+    const  user = useSelector((state: any) => state.user);
+    return user.isAuthenticated && user._id? <Component /> : <Navigate to="/login" />;
 }
 
 export default PrivateRoute

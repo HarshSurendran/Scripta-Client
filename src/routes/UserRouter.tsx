@@ -7,8 +7,9 @@ import Dashboard from '@/pages/Dashboard'
 import ArticleCreation from '@/pages/ArticleCreation'
 import DashboardLayout from '@/layout/DashboardLayout'
 import EditProfile from '@/pages/EditProfile'
-import PrivateRoute from '@/hoc/privateRoute'
-import PublicRoute from '@/hoc/publicRoute'
+import PrivateRoute from '@/hoc/PrivateRoute'
+import PublicRoute from '@/hoc/PublicRoute'
+import MyArticles from '@/pages/MyArticles'
 
 const UserRouter: React.FC = () => {
   return (
@@ -20,7 +21,7 @@ const UserRouter: React.FC = () => {
       <Route element={<PrivateRoute component={DashboardLayout} />}>        
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/create' element={<ArticleCreation />} />
-        <Route path='/articles' element={<h1 className='text-3xl'>Articles</h1>} />
+        <Route path='/articles' element={<MyArticles />} />
         <Route path='/settings' element={<EditProfile />} />
       </Route>
     </Routes>

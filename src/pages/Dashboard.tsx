@@ -4,58 +4,9 @@ import ArticleCard from '@/components/ArticleCard';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store/store';
 import CategorySelectionModal from '@/components/CategorySelection';
-import { getArticles } from '@/services/user';
+import { getArticles } from '@/services/article';
 import { Article } from '@/types/articleTypes';
 
-
-
-
-
-// Sample Articles
-// const SAMPLE_ARTICLES: Article[] = [
-//   {
-//     id: '1',
-//     title: 'The Future of AI',
-//     description: 'An in-depth look at artificial intelligence and its potential impact.',
-//     images: ['/api/placeholder/600/400'],
-//     tags: ['AI', 'Technology', 'Innovation'],
-//     category: 'Technology',
-//     author: {
-//       name: 'John Doe',
-//       avatar: '/api/placeholder/50/50'
-//     },
-//     likes: 124,
-//     dislikes: 12
-//   },
-//   {
-//     id: '2',
-//     title: 'The Future of AI',
-//     description: 'An in-depth look at artificial intelligence and its potential impact.',
-//     images: ['/api/placeholder/600/400'],
-//     tags: ['AI', 'Technology', 'Innovation'],
-//     category: 'Technology',
-//     author: {
-//       name: 'John Doe',
-//       avatar: '/api/placeholder/50/50'
-//     },
-//     likes: 124,
-//     dislikes: 12
-//   },
-//   {
-//     id: '3',
-//     title: 'The Future of AI',
-//     description: 'An in-depth look at artificial intelligence and its potential impact.',
-//     images: ['/api/placeholder/600/400'],
-//     tags: ['AI', 'Technology', 'Innovation'],
-//     category: 'Science',
-//     author: {
-//       name: 'John Doe',
-//       avatar: '/api/placeholder/50/50'
-//     },
-//     likes: 124,
-//     dislikes: 12
-//   },
-// ];
 
 const Dashboard: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

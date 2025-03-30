@@ -9,7 +9,8 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { alterInterestedCategories, getAllCategories } from '@/services/user';
+import { alterInterestedCategories } from '@/services/user';
+import { getAllCategories } from '@/services/categories';
 import { useDispatch } from 'react-redux';
 import { addInterestCategories } from '@/redux/slice/userSlice';
 import { Category } from '@/types/categoryTypes';

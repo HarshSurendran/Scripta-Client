@@ -30,27 +30,20 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store/store';
-import { createArticle, getAllCategories } from '@/services/user';
 import { ImageFile } from '@/types/articleTypes';
 import { useNavigate } from 'react-router-dom';
 import { Category } from '@/types/categoryTypes';
+import { createArticle } from '@/services/article';
+import { getAllCategories } from '@/services/categories';
 
 interface AiSuggestion {
   text: string;
   confidence: number;
 }
 
-// const CATEGORIES = [
-//   'Technology', 
-//   'Science', 
-//   'Arts', 
-//   'Culture', 
-//   'Sports', 
-//   'Health', 
-//   'Travel'
-// ];
 
 const ArticleCreation: React.FC = () => {
+  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -123,6 +116,7 @@ const ArticleCreation: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     try {
+      setLoading(true);
       e.preventDefault();
       if (!user._id) {
         console.log("Sorry user id is not available, please login again");
@@ -150,6 +144,8 @@ const ArticleCreation: React.FC = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -329,8 +325,9 @@ const ArticleCreation: React.FC = () => {
           <Button 
             type="submit" 
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            disabled={loading}
           >
-            <Upload className="mr-2" /> Publish Article
+            <Upload className="mr-2" /> {loading ? 'Publishing...' : 'Publish Article'}
           </Button>
         </form>
       </motion.div>

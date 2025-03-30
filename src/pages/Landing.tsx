@@ -10,8 +10,6 @@ const Landing: React.FC = () => {
       </header>
       <main>
         <HeroSection />
-        
-
       </main>
     </div>
   )
