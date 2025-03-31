@@ -13,6 +13,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
+import toast from 'react-hot-toast';
 
 const blockReasons = [
   "Inappropriate content",
@@ -83,14 +84,13 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
     }
 
     try {
-      console.log("alterObj", alterObj);
       const response = await alterUserAction(articleBody._id,alterObj);
       if (response.success) {
         setUserAction(action);
         setArticleBody((prev) => ({...prev, likes: response.data.likes, dislikes: response.data.dislikes, likedBy: response.data.likedBy, dislikedBy: response.data.dislikedBy}));
       }
     } catch (error) {
-      console.log("Problem updating useraction");
+      toast.error("Failed to update user action");
     }
   }
   
@@ -102,7 +102,6 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
     const reasonData = blockReason === "Other" ? otherReason : blockReason;
     
     try {
-      console.log("Blocking article with reason:", reasonData);
       const blockData = {
         userId: user._id as string,
         articleId: articleBody._id,
@@ -111,7 +110,7 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
 
       const response = await blockArticle(blockData);
       if (response.success) {
-        console.log("Article blocked successfully");
+        toast.success("Article blocked successfully");
         fetchArticles();
       }
       
@@ -119,7 +118,7 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
       setBlockReason(blockReasons[0]);
       setOtherReason("");
     } catch (error) {
-      console.log("Problem blocking article", error);
+      toast.error("Failed to block article");
     }
   };
 

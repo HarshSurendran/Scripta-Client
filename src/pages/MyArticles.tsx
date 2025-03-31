@@ -3,6 +3,7 @@ import ArticleCardSkeleton from '@/components/skeleton/ArticleCardSkeleton';
 import { getMyArticles } from '@/services/article';
 import { Article } from '@/types/articleTypes';
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 
 const MyArticles: React.FC = () => {
     const [myArticles, setMyArticles] = useState<Article[]>([]);
@@ -20,7 +21,7 @@ const MyArticles: React.FC = () => {
                 setMyArticles(response.data);
             }
         } catch (error) {
-            console.log(error);
+            toast.error("Failed to fetch articles");
         } finally {
             setLoading(false);
         }

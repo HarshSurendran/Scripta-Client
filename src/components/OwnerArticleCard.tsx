@@ -127,7 +127,6 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, fetchMyArticles
 
       if (newImages.length > 0) {
         const validateImageStatus = validateImage(newImages);
-        console.log(validateImageStatus, "This is validateImage status")
         if (!validateImageStatus.success) {
           setErrors(prevErrors => ({ ...prevErrors, imageurls: validateImageStatus.error.issues[0].message }));
           return
@@ -139,7 +138,6 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, fetchMyArticles
           ...prevErrors,
           imageurls: 'At least one image is required'
         }));
-        console.log("ENtered")
         return
       };
 

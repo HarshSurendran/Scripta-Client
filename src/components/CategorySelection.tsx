@@ -14,6 +14,7 @@ import { getAllCategories } from '@/services/categories';
 import { useDispatch } from 'react-redux';
 import { addInterestCategories } from '@/redux/slice/userSlice';
 import { Category } from '@/types/categoryTypes';
+import toast from 'react-hot-toast';
 
 const CategorySelectionModal: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -61,9 +62,10 @@ const CategorySelectionModal: React.FC = () => {
         dispatch(addInterestCategories({ interestedCategories: selectedCategories }));
         setIsOpen(false);
       } else {
-        console.log("Error in category selection");
+        toast.error('Failed to update categories');
       }
     } catch (error) {
+      toast.error('Failed to update categories');
       console.log(error);
     }
   };

@@ -21,6 +21,7 @@ import { RootState } from '@/redux/store/store';
 import { updateProfile } from '@/services/user';
 import { getAllCategories } from '@/services/categories';
 import { Category } from '@/types/categoryTypes';
+import toast from 'react-hot-toast';
 
 
 
@@ -88,10 +89,10 @@ const EditProfile: React.FC = () => {
       const response = await updateProfile(updateDto);
       if (response.status === 204) {
         dispatch(updateProfileAction(profileData));
-        console.log("Profile updated successfully");
+        toast.success('Profile updated successfully');
       }
     } catch (error) {
-      console.log("Error while saving profile",error);
+      toast.error('Failed to update profile');
     }
   };
 
@@ -139,10 +140,10 @@ const EditProfile: React.FC = () => {
         dispatch(logoutAction());
         navigate('/');
       } else {
-        ("Error in logout");
+        toast.error("Error in logout");
       }
     } catch (error) {
-      console.log(error);
+      toast.error('Failed to logout');
     }
   };
 

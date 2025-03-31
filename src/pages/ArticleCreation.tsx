@@ -36,6 +36,7 @@ import { Category } from '@/types/categoryTypes';
 import { createArticle } from '@/services/article';
 import { getAllCategories } from '@/services/categories';
 import { validateCreateArticle } from '@/validators/articlesValidators';
+import toast from 'react-hot-toast';
 
 interface AiSuggestion {
   text: string;
@@ -103,7 +104,6 @@ const ArticleCreation: React.FC = () => {
   };
 
   const removeTag = (tagToRemove: string) => {
-    console.log(tagToRemove)
     setTags(prev => prev.filter(tag => tag !== tagToRemove));
   };
 
@@ -123,6 +123,7 @@ const ArticleCreation: React.FC = () => {
       setLoading(true);
       e.preventDefault();
       if (!user._id) {
+        toast.error('User id is not available, please login again');
         console.log("Sorry user id is not available, please login again");
         return
       }
@@ -152,9 +153,11 @@ const ArticleCreation: React.FC = () => {
 
       const response = await createArticle(formData);
       if (response.success) {
+        toast.success('Article created successfully');
         navigate('/articles')
       }
     } catch (error) {
+      toast.error('Failed to create article');
       console.log(error);
     } finally {
       setLoading(false);

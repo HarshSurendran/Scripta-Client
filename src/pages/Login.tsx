@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { login } from '@/services/auth';
 import { login as loginAction } from '@/redux/slice/userSlice';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 
 interface LoginFormData {
   identifier: string; // can be email or phone
@@ -54,7 +55,6 @@ const Login: React.FC = () => {
   
   const handleSubmit = async (e: React.FormEvent) => {      
     try {
-        console.log("Form data", formData);
         e.preventDefault();
         if (validateForm()) {
           const response = await login(formData.identifier, formData.password);
@@ -63,9 +63,9 @@ const Login: React.FC = () => {
             dispatch(loginAction(response.data.user));
             navigate('/dashboard');
           }
-          console.log("Login form is valid", formData);
         }
-      } catch (error) {
+    } catch (error) {
+      toast.error("Invalid Credentials");
         console.log("Error", error);
       }
     };

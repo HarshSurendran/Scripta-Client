@@ -14,6 +14,7 @@ import { SignupErrors, SignupFormData } from '@/types/authTypes';
 import { signup } from '@/services/auth';
 import { useDispatch } from 'react-redux';
 import { login } from '@/redux/slice/userSlice';
+import toast from 'react-hot-toast';
 
 
 
@@ -80,9 +81,9 @@ const Signup: React.FC = () => {
           dispatch(login(response.data.user));
           navigate('/dashboard');
         }
-        console.log("Form is valid", formData);
       }
     } catch (error) {
+      toast.error("Error in signup");
       console.log(error);
     }
   };
