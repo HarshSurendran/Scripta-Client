@@ -24,7 +24,7 @@ const blockReasons = [
   "Other"
 ];
 
-const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = ({ article, fetchArticles }) => {
+const ArticleCard: React.FC<{ article: Article, setIsBlocked: (value :boolean) => void }> = ({ article, setIsBlocked }) => {
   const user = useSelector((state: RootState) => state.user);
   const [userAction, setUserAction] = useState<'like' | 'dislike' | null>(article.likedBy.includes(user._id as string) ? 'like' : article.dislikedBy.includes(user._id as string) ? 'dislike' : null);
   const [articleBody, setArticleBody] = useState(article);
@@ -111,7 +111,7 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
       const response = await blockArticle(blockData);
       if (response.success) {
         toast.success("Article blocked successfully");
-        fetchArticles();
+        setIsBlocked(true);
       }
       
       setBlockDialogOpen(false);

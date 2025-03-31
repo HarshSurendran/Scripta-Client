@@ -16,6 +16,7 @@ const Dashboard: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [lazyLoading, setLazyLoading] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
@@ -37,6 +38,16 @@ const Dashboard: React.FC = () => {
     },
     [loading, hasMore]
   );
+
+  useEffect(() => {
+    console.log("usefct called")
+    if (isBlocked) {
+      console.log("inside if condition")
+      setArticles([]);
+      setPage(1);
+      setIsBlocked(false);
+    }
+  }, [isBlocked])
 
   useEffect(() => {
     fetchArticles();
@@ -112,7 +123,7 @@ const Dashboard: React.FC = () => {
             {/* Articles */}
               {filteredArticles.map((article, index) => (
                 <div ref={index === articles.length - 1 ? lastArticleRef : null} key={article._id} className="mb-4">
-                  <ArticleCard article={article} fetchArticles={fetchArticles} />
+                  <ArticleCard article={article} setIsBlocked={setIsBlocked} />
                 </div>
             ))}
               {filteredArticles.length === 0 && <p className="text-gray-600 text-center mt-4 text-lg ">No articles found</p>}
