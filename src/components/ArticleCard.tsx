@@ -6,16 +6,32 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Article } from '@/types/articleTypes';
 import { useSwipeable } from 'react-swipeable';
-import { alterUserAction } from '@/services/article';
+import { alterUserAction, blockArticle } from '@/services/article';
 import { RootState } from '@/redux/store/store';
 import { useSelector } from 'react-redux';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
 
-const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
+const blockReasons = [
+  "Inappropriate content",
+  "Misinformation",
+  "Not relevant to my interests",
+  "Spam",
+  "Hate speech",
+  "Other"
+];
+
+const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = ({ article, fetchArticles }) => {
   const user = useSelector((state: RootState) => state.user);
   const [userAction, setUserAction] = useState<'like' | 'dislike' | null>(article.likedBy.includes(user._id as string) ? 'like' : article.dislikedBy.includes(user._id as string) ? 'dislike' : null);
   const [articleBody, setArticleBody] = useState(article);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-   const [expandedDescription, setExpandedDescription] = useState(false);
+  const [expandedDescription, setExpandedDescription] = useState(false);
+  const [blockDialogOpen, setBlockDialogOpen] = useState(false);
+  const [blockReason, setBlockReason] = useState<string>(blockReasons[0]);
+  const [otherReason, setOtherReason] = useState<string>("");
 
   const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % article.imageurls.length);
   const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + article.imageurls.length) % article.imageurls.length);
@@ -77,8 +93,38 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
       console.log("Problem updating useraction");
     }
   }
+  
+  const handleBlockArticle = () => {
+    setBlockDialogOpen(true);
+  };
+
+  const submitBlockRequest = async () => {
+    const reasonData = blockReason === "Other" ? otherReason : blockReason;
+    
+    try {
+      console.log("Blocking article with reason:", reasonData);
+      const blockData = {
+        userId: user._id as string,
+        articleId: articleBody._id,
+        reason: reasonData,
+      }
+
+      const response = await blockArticle(blockData);
+      if (response.success) {
+        console.log("Article blocked successfully");
+        fetchArticles();
+      }
+      
+      setBlockDialogOpen(false);
+      setBlockReason(blockReasons[0]);
+      setOtherReason("");
+    } catch (error) {
+      console.log("Problem blocking article", error);
+    }
+  };
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -169,6 +215,7 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
             <Button
               variant="ghost"
               size="sm"
+              onClick={handleBlockArticle}
               className="text-red-500 hover:text-red-700"
             >
               <Ban size={16} className="mr-2" /> Block
@@ -176,7 +223,58 @@ const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
           </div>
         </div>
       </div>
-    </motion.div>
+      </motion.div>
+      
+      <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-gray-900 text-white border-gray-800 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Block this article</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Please tell us why you want to block this article. This helps us improve your feed.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <RadioGroup value={blockReason} onValueChange={setBlockReason} className="space-y-3">
+              {blockReasons.map((reason) => (
+                <div key={reason} className="flex items-center space-x-2">
+                  <RadioGroupItem id={reason} value={reason} className="text-white border-gray-600" />
+                  <Label htmlFor={reason} className="text-white">{reason}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+            
+            {blockReason === "Other" && (
+              <div className="mt-4">
+                <Label htmlFor="otherReason" className="text-white">Please specify:</Label>
+                <Textarea
+                  id="otherReason"
+                  placeholder="Tell us why you want to block this article..."
+                  value={otherReason}
+                  onChange={(e) => setOtherReason(e.target.value)}
+                  className="mt-2 bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter className="sm:justify-between">
+            <DialogClose asChild>
+              <Button variant="ghost" className="text-gray-400 hover:text-white hover:bg-gray-800">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button 
+              variant="destructive" 
+              onClick={submitBlockRequest}
+              disabled={blockReason === "Other" && otherReason.trim() === ""}
+            >
+              Block Article
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      </>
   );
 };
   

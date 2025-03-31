@@ -45,3 +45,21 @@ export const getMyArticles = async () => {
     }
 }
 
+export const blockArticle = async (data: {userId: string, articleId: string, reason: string}) => {
+    try {
+        const response = await apiInstance.post(`/articles/block`, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const deleteArticle = async (articleId: string) => {
+    try {
+        const response = await apiInstance.delete(`/articles/${articleId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+

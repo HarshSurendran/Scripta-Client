@@ -61,7 +61,7 @@ const Dashboard: React.FC = () => {
   
             {/* Articles */}
             {filteredArticles.map(article => (
-              <ArticleCard key={article._id} article={article} />
+              <ArticleCard key={article._id} article={article} fetchArticles={fetchArticles} />
             ))}
           </div>
         </div>

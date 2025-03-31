@@ -27,7 +27,7 @@ const MyArticles: React.FC = () => {
                 <div className="flex-1 bg-gray-50 p-6 ">
                     <div className="max-w-4xl mx-auto">
                         {
-                            myArticles.length && myArticles.map((article) => <OwnerArticleCard article={article} />)
+                            myArticles.length && myArticles.map((article) => <OwnerArticleCard article={article} key={article._id} fetchMyArticles={fetchMyArticles} />)
                         }
                     </div>
                 </div>
