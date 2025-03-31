@@ -9,9 +9,9 @@ export const createArticle = async (data: FormData) => {
     }
 }
 
-export const getArticles = async (interestedCategories: string[]) => {
+export const getArticles = async (interestedCategories: string[], page:number, limit:number) => {
     try {
-        const response = await apiInstance.post('/articles/all', { interestedCategories });
+        const response = await apiInstance.post(`/articles/all?page=${page}&limit=${limit}`, { interestedCategories });
         return response.data;
     } catch (error) {
         throw error;
