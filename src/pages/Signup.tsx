@@ -30,6 +30,7 @@ const Signup: React.FC = () => {
     confirmPassword: ''
   });
   const [errors, setErrors] = useState<Partial<SignupErrors>>({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -72,7 +73,8 @@ const Signup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {      
+    try {
+      setLoading(true);
       if (validateForm()) {      
         const { confirmPassword, ...payload } = formData; 
         const response = await signup(payload);
@@ -85,20 +87,22 @@ const Signup: React.FC = () => {
     } catch (error) {
       toast.error("Error in signup");
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
         <Card className="bg-gray-900 text-white border-gray-800">
-                  <CardHeader>
-                      <CardTitle className="text-center text-4xl text-white">Scripta</CardTitle>
+          <CardHeader>
+            <CardTitle className="text-center text-4xl text-white">Scripta</CardTitle>
             <CardTitle className="text-center text-2xl text-white">Sign Up</CardTitle>
             <CardDescription className="text-center text-gray-400">Create your account</CardDescription>
           </CardHeader>
@@ -107,8 +111,8 @@ const Signup: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="firstName" className="text-white">First Name</Label>
-                  <Input 
-                    type="text" 
+                  <Input
+                    type="text"
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
@@ -118,8 +122,8 @@ const Signup: React.FC = () => {
                 </div>
                 <div>
                   <Label htmlFor="lastName" className="text-white">Last Name</Label>
-                  <Input 
-                    type="text" 
+                  <Input
+                    type="text"
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
@@ -131,8 +135,8 @@ const Signup: React.FC = () => {
 
               <div>
                 <Label htmlFor="email" className="text-white">Email</Label>
-                <Input 
-                  type="email" 
+                <Input
+                  type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
@@ -143,8 +147,8 @@ const Signup: React.FC = () => {
 
               <div>
                 <Label htmlFor="phone" className="text-white">Phone Number</Label>
-                <Input 
-                  type="tel" 
+                <Input
+                  type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
@@ -172,7 +176,7 @@ const Signup: React.FC = () => {
                     <Calendar
                       mode="single"
                       selected={formData.dob}
-                      onSelect={(date) => setFormData(prev => ({...prev, dob: date}))}
+                      onSelect={(date) => setFormData(prev => ({ ...prev, dob: date }))}
                       initialFocus
                     />
                   </PopoverContent>
@@ -182,8 +186,8 @@ const Signup: React.FC = () => {
 
               <div>
                 <Label htmlFor="password" className="text-white">Password</Label>
-                <Input 
-                  type="password" 
+                <Input
+                  type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -194,8 +198,8 @@ const Signup: React.FC = () => {
 
               <div>
                 <Label htmlFor="confirmPassword" className="text-white">Confirm Password</Label>
-                <Input 
-                  type="password" 
+                <Input
+                  type="password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -204,16 +208,17 @@ const Signup: React.FC = () => {
                 {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
+                disabled={loading}
                 className="w-full bg-white text-black hover:bg-gray-200"
               >
-                Create Account
+                {loading ? "Signing Up..." : "Sign Up"}
               </Button>
-                      </form>
-                      <p className='mt-4 '>Already have an account?
-                        <Link to="/login" className="text-blue-500 hover:underline"> LogIn</Link>
-                      </p>
+            </form>
+            <p className='mt-4 '>Already have an account?
+              <Link to="/login" className="text-blue-500 hover:underline"> LogIn</Link>
+            </p>
           </CardContent>
         </Card>
       </motion.div>
@@ -221,4 +226,4 @@ const Signup: React.FC = () => {
   );
 };
 
-export default Signup
+export default Signup;
