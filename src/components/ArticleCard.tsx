@@ -124,53 +124,53 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
 
   return (
     <>
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-gray-900 rounded-lg shadow-lg overflow-hidden mb-6"
-    >
-      {articleBody.imageurls.length > 0 && (
-        <div {...handlers} className="relative w-full h-64 overflow-hidden flex items-center">
-          <button onClick={prevImage} className={`absolute left-2 bg-black/50 p-2 rounded-full text-white ${articleBody.imageurls.length === 1 ? 'hidden' : ''}`}>
-            <ChevronLeft size={20} />
-          </button>
-          <motion.img
-            key={articleBody.imageurls[currentImageIndex]}
-            src={articleBody.imageurls[currentImageIndex]}
-            alt={articleBody.title}
-            className="w-full h-64 object-cover"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          />
-          <button onClick={nextImage} className={`absolute right-2 bg-black/50 p-2 rounded-full text-white ${articleBody.imageurls.length === 1 ? 'hidden' : ''}`}>
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      )}
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center space-x-3">
-            <Avatar>
-              <AvatarImage src={articleBody.author.image} />
-              <AvatarFallback>{articleBody.author.shortName}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="text-white font-bold">{articleBody.author.firstName + ' ' + articleBody.author.lastName}</h3>
-              <Badge variant="secondary">{articleBody.category}</Badge>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-gray-900 rounded-lg shadow-lg overflow-hidden mb-6"
+      >
+        {articleBody.imageurls.length > 0 && (
+          <div {...handlers} className="relative w-full h-64 overflow-hidden flex items-center">
+            <button onClick={prevImage} className={`absolute left-2 bg-black/50 p-2 rounded-full text-white ${articleBody.imageurls.length === 1 ? 'hidden' : ''}`}>
+              <ChevronLeft size={20} />
+            </button>
+            <motion.img
+              key={articleBody.imageurls[currentImageIndex]}
+              src={articleBody.imageurls[currentImageIndex]}
+              alt={articleBody.title}
+              className="w-full h-64 object-cover"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            />
+            <button onClick={nextImage} className={`absolute right-2 bg-black/50 p-2 rounded-full text-white ${articleBody.imageurls.length === 1 ? 'hidden' : ''}`}>
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center space-x-3">
+              <Avatar>
+                <AvatarImage src={articleBody.author.image} />
+                <AvatarFallback>{articleBody.author.shortName}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="text-white font-bold">{articleBody.author.firstName + ' ' + articleBody.author.lastName}</h3>
+                <Badge variant="secondary">{articleBody.category}</Badge>
+              </div>
             </div>
           </div>
-        </div>
           
-        <h2 className="text-xl font-bold text-white mb-2">{articleBody.title}</h2>
-        {/* <p className="text-gray-300 mb-4">{articleBody.description}</p> */}
-        <div className="text-gray-300 mb-4">
+          <h2 className="text-xl font-bold text-white mb-2">{articleBody.title}</h2>
+          {/* <p className="text-gray-300 mb-4">{articleBody.description}</p> */}
+          <div className="text-gray-300 mb-4">
             <p>{expandedDescription ? articleBody.description : truncatedDescription}</p>
             {isLongDescription && (
-              <Button 
-                variant="link" 
-                size="sm" 
+              <Button
+                variant="link"
+                size="sm"
                 onClick={toggleDescription}
                 className="text-blue-400 hover:text-blue-500 p-0 mt-1 h-auto"
               >
@@ -183,45 +183,45 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
             )}
           </div>
           
-        <div className="flex flex-wrap gap-2 mb-4">
-          {articleBody.tags.map(tag => (
-            <Badge key={tag} variant="outline" className="text-white">{tag}</Badge>
-          ))}
-        </div>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {articleBody.tags.map(tag => (
+              <Badge key={tag} variant="outline" className="text-white">{tag}</Badge>
+            ))}
+          </div>
           
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-4">
-            <Button
-              variant='secondary'
-              size="sm"
-              onClick={() => handleUserAction("like button") }
-              className={`flex items-center space-x-2 ${userAction === 'like' ? 'bg-green-500 text-white' : ''}`}
-            >
-              <ThumbsUp size={16} />
-              <span>{articleBody.likes}</span>
-            </Button>
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-4">
+              <Button
+                variant='secondary'
+                size="sm"
+                onClick={() => handleUserAction("like button")}
+                className={`flex items-center space-x-2 ${userAction === 'like' ? 'bg-green-500 text-white' : ''}`}
+              >
+                <ThumbsUp size={16} />
+                <span>{articleBody.likes}</span>
+              </Button>
               
-            <Button
-              variant={userAction === 'dislike' ? 'destructive' : 'outline'}
-              size="sm"
-              onClick={() => handleUserAction("dislike button") }
-              className="flex items-center space-x-2"
-            >
-              <ThumbsDown size={16} />
-              <span>{articleBody.dislikes}</span>
-            </Button>
+              <Button
+                variant={userAction === 'dislike' ? 'destructive' : 'outline'}
+                size="sm"
+                onClick={() => handleUserAction("dislike button")}
+                className="flex items-center space-x-2"
+              >
+                <ThumbsDown size={16} />
+                <span>{articleBody.dislikes}</span>
+              </Button>
               
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBlockArticle}
-              className="text-red-500 hover:text-red-700"
-            >
-              <Ban size={16} className="mr-2" /> Block
-            </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBlockArticle}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Ban size={16} className="mr-2" /> Block
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
       </motion.div>
       
       <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
@@ -263,8 +263,8 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
                 Cancel
               </Button>
             </DialogClose>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={submitBlockRequest}
               disabled={blockReason === "Other" && otherReason.trim() === ""}
             >
@@ -273,7 +273,7 @@ const ArticleCard: React.FC<{ article: Article, fetchArticles: () => void }> = (
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </>
+    </>
   );
 };
   

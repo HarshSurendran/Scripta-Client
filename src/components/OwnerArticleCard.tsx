@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Edit, Eye, EyeOff, X, ImagePlus, Trash } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { deleteArticle, updateArticle } from '@/services/article';
+import { deleteArticle, getNoOfBlocks, updateArticle } from '@/services/article';
 import { validateImage, validateUpdateArticle } from '@/validators/articlesValidators';
+import toast from 'react-hot-toast';
 
 
 interface ArticleCardProps {
@@ -34,6 +35,22 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, fetchMyArticles
     tags: articleBody.tags.join(', '),
     imageurls: [...articleBody.imageurls],
   });
+  const [blocks, setBlocks] = useState();
+
+  useEffect(() => {
+    fetchNoOfBlocks();
+  }, []);
+
+  const fetchNoOfBlocks = async () => {
+    try {
+      const response = await getNoOfBlocks(article._id);
+      if (response.success) {
+        setBlocks(response.data);
+      }
+    } catch (error) {
+      toast.error("Error in fetching no of blocks");
+    }
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -314,9 +331,9 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, fetchMyArticles
               <Badge variant="secondary" className="bg-gray-800 text-gray-300">
                 {articleBody.dislikes} Dislikes
               </Badge>
-              {/*              <Badge variant="secondary" className="bg-gray-800 text-gray-300">
-                {articleBody.blocks || 0} Blocks
-              </Badge> */}
+              <Badge variant="secondary" className="bg-gray-800 text-gray-300">
+                {blocks || 0} Blocks
+              </Badge>
             </div>
             
             {/* Publication date */}

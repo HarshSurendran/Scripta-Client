@@ -63,3 +63,12 @@ export const deleteArticle = async (articleId: string) => {
     }
 }
 
+export const getNoOfBlocks = async (articleId:string) => {
+    try {
+        const response = await apiInstance.get(`/articles/noofblocks/${articleId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
