@@ -10,6 +10,7 @@ import EditProfile from '@/pages/EditProfile'
 import PrivateRoute from '@/hoc/PrivateRoute'
 import PublicRoute from '@/hoc/PublicRoute'
 import MyArticles from '@/pages/MyArticles'
+import ErrorPage from '@/pages/ErrorPage'
 
 const UserRouter: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const UserRouter: React.FC = () => {
         <Route path='/articles' element={<MyArticles />} />
         <Route path='/settings' element={<EditProfile />} />
       </Route>
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 };
