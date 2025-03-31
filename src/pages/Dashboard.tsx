@@ -6,12 +6,15 @@ import { RootState } from '@/redux/store/store';
 import CategorySelectionModal from '@/components/CategorySelection';
 import { getArticles } from '@/services/article';
 import { Article } from '@/types/articleTypes';
+import ArticleCardSkeleton from '@/components/skeleton/ArticleCardSkeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 const Dashboard: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const user = useSelector((state: RootState) => state.user);
   const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchArticles();
@@ -19,12 +22,15 @@ const Dashboard: React.FC = () => {
 
   const fetchArticles = async () => {
     try {
+      setLoading(true);
       const response = await getArticles(user.interestedCategories);
       if (response.success) {
         setArticles(response.data);
       }
     } catch (error) {
       console.error('Error fetching articles:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,7 +44,24 @@ const Dashboard: React.FC = () => {
       {user.interestedCategories.length == 0 && (
         <CategorySelectionModal />
       )}
-      <div className="flex min-h-screen bg-gray-100">
+      {loading ?<div className="flex min-h-screen bg-gray-100">
+        <div className="flex-1 bg-gray-50 p-6 ">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-wrap gap-2 mb-6">
+              <Skeleton className="h-10 w-24 bg-gray-700 rounded-md" />
+              <Skeleton className="h-10 w-24 bg-gray-700  rounded-md" />
+              <Skeleton className="h-10 w-24 bg-gray-700  rounded-md" />
+              <Skeleton className="h-10 w-24 bg-gray-700  rounded-md" />
+              <Skeleton className="h-10 w-24 bg-gray-700  rounded-md" />
+              <Skeleton className="h-10 w-24 bg-gray-700  rounded-md" />  
+              </div>
+            <ArticleCardSkeleton />
+          </div>
+        </div>
+        </div>
+          
+          :
+        <div className="flex min-h-screen bg-gray-100">
         <div className="flex-1 bg-gray-50 p-6 ">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-wrap gap-2 mb-6">
@@ -63,9 +86,10 @@ const Dashboard: React.FC = () => {
             {filteredArticles.map(article => (
               <ArticleCard key={article._id} article={article} fetchArticles={fetchArticles} />
             ))}
+              {filteredArticles.length === 0 && <p className="text-gray-600 text-center mt-4 text-lg ">No articles found</p>}
           </div>
         </div>
-      </div>
+      </div>}
     </>
   );
 };
