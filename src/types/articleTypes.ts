@@ -34,6 +34,8 @@ export interface Article {
     dislikes: number;
     likedBy: string[];
     dislikedBy: string[];
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export type CreateArticleValidate = {

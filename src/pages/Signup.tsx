@@ -15,6 +15,7 @@ import { signup } from '@/services/auth';
 import { useDispatch } from 'react-redux';
 import { login } from '@/redux/slice/userSlice';
 import toast from 'react-hot-toast';
+import { AxiosError } from 'axios';
 
 
 
@@ -31,6 +32,7 @@ const Signup: React.FC = () => {
   });
   const [errors, setErrors] = useState<Partial<SignupErrors>>({});
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -84,9 +86,12 @@ const Signup: React.FC = () => {
           navigate('/dashboard');
         }
       }
-    } catch (error) {
-      toast.error("Error in signup");
-      console.log(error);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        toast.error(error?.response?.data?.error || "Error in signup");
+      } else {
+        toast.error("Error in signup");
+      }
     } finally {
       setLoading(false);
     }
@@ -157,33 +162,68 @@ const Signup: React.FC = () => {
                 {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
               </div>
 
-              <div>
-                <Label className="text-white">Date of Birth</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-800 text-white border-gray-700",
-                        !formData.dob && "text-gray-500"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.dob ? format(formData.dob, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.dob}
-                      onSelect={(date) => setFormData(prev => ({ ...prev, dob: date }))}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                {errors.dob && <p className="text-red-500 text-sm">{errors.dob}</p>}
-              </div>
+                {/* <div>
+                  <Label className="text-white">Date of Birth</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal bg-gray-800 text-white border-gray-700",
+                          !formData.dob && "text-gray-500"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.dob ? format(new Date(formData.dob), "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={formData.dob}
+                        onSelect={(date) => setFormData(prev => ({ ...prev, dob: date }))}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {errors.dob && <p className="text-red-500 text-sm">{errors.dob}</p>}
+                </div> */}
+              
 
+              <div>
+      <Label className="text-white">Date of Birth</Label>
+      {/* <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild> */}
+          <Button
+                      variant={"outline"}
+                      onClick={()=> setOpen(true)}
+            className={cn(
+              "w-full justify-start text-left font-normal bg-gray-800 text-white border-gray-700",
+              !formData.dob && "text-gray-500"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {formData.dob ? format(new Date(formData.dob), "PPP") : <span>Pick a date</span>}
+          </Button>
+        {/* </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={formData.dob ? new Date(formData.dob) : undefined}
+            onSelect={(date) => setFormData(prev => ({ ...prev, dob: date }))}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover> */}
+      {errors.dob && <p className="text-red-500 text-sm mt-1">{errors.dob}</p>}
+    </div>
+              {open && <Calendar
+                mode="single"
+                selected={formData.dob ? new Date(formData.dob) : undefined}
+                onSelect={(date) => { setFormData(prev => ({ ...prev, dob: date })); setOpen(false) }}
+                initialFocus
+              />}
+              
               <div>
                 <Label htmlFor="password" className="text-white">Password</Label>
                 <Input

@@ -40,9 +40,7 @@ const Dashboard: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log("usefct called")
     if (isBlocked) {
-      console.log("inside if condition")
       setArticles([]);
       setPage(1);
       setIsBlocked(false);

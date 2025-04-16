@@ -338,7 +338,7 @@ const OwnerArticleCard: React.FC<ArticleCardProps> = ({ article, fetchMyArticles
             
             {/* Publication date */}
             <div className="text-gray-400 text-sm">
-              Published: {new Date(Date.now()).toLocaleDateString()}
+              Published: {new Date(articleBody.createdAt || article.updatedAt).toLocaleDateString()}
             </div>
           </div>
         </div>
